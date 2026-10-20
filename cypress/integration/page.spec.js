@@ -1385,7 +1385,7 @@ describe('', () => {
     });
   });
 
-  describe.skip('Renaming', () => {
+  describe('Renaming', () => {
     beforeEach(() => {
       page.mockLoad().as('loadRequest');
       page.visit();
