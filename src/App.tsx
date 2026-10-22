@@ -1,9 +1,9 @@
 /* eslint-disable max-len */
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { UserWarning } from './UserWarning';
-import { getTodos, USER_ID } from './api/todos';
+import { deleteTodo, getTodos, USER_ID } from './api/todos';
 import { Todo } from './types/Todo';
 import { Status } from './types/Status';
 import { TodoList } from './components/TodoList/TodoList';
@@ -18,12 +18,21 @@ export const App: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<ErrorMessage>(
     ErrorMessage.noError,
   );
+  // eslint-disable-next-line
+  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [isProcessedIds, setIsProcessedIds] = useState<number[]>([]);
+  const [title, setTitle] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setErrorMessage(ErrorMessage.noError);
     getTodos()
       .then(setTodos)
       .catch(() => setErrorMessage(ErrorMessage.unableToLoad));
+  }, []);
+
+  useEffect(() => {
+    inputRef.current?.focus();
   }, []);
 
   function getVisibleTodos(): Todo[] {
@@ -39,6 +48,19 @@ export const App: React.FC = () => {
 
   const visibleTodos = getVisibleTodos();
 
+  function handleTodoDelete(id: number) {
+    setIsProcessedIds(prev => [...prev, id]);
+
+    deleteTodo(id)
+      .then(() =>
+        setTodos(prevTodos => prevTodos.filter(prevTodo => prevTodo.id !== id)),
+      )
+      .catch(() => setErrorMessage(ErrorMessage.unableToDelete))
+      .finally(() =>
+        setIsProcessedIds(prevIds => prevIds.filter(prevId => prevId !== id)),
+      );
+  }
+
   if (!USER_ID) {
     return <UserWarning />;
   }
@@ -48,10 +70,20 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <Header todos={todos} />
+        <Header
+          todos={todos}
+          title={title}
+          onTitle={setTitle}
+          inputFocusRef={inputRef}
+        />
         {todos.length > 0 && (
           <>
-            <TodoList todos={visibleTodos} />
+            <TodoList
+              todos={visibleTodos}
+              tempTodo={tempTodo}
+              isProcessedIds={isProcessedIds}
+              onDelete={handleTodoDelete}
+            />
             <Footer todos={todos} status={status} onStatusChange={setStatus} />
           </>
         )}
