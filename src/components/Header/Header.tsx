@@ -8,7 +8,7 @@ type Props = {
   onTitleChange: (title: string) => void;
   inputFocusRef: React.RefObject<HTMLInputElement>;
   onFormSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
-  tempTodo: Todo | null;
+  isTempTodo: boolean;
 };
 
 export const Header: React.FC<Props> = ({
@@ -17,7 +17,7 @@ export const Header: React.FC<Props> = ({
   onTitleChange,
   inputFocusRef,
   onFormSubmit,
-  tempTodo,
+  isTempTodo,
 }) => {
   const areAllTodosCompleted = todos.every(todo => todo.completed);
 
@@ -42,7 +42,7 @@ export const Header: React.FC<Props> = ({
           value={title}
           onChange={event => onTitleChange(event.target.value)}
           ref={inputFocusRef}
-          disabled={tempTodo !== null}
+          disabled={isTempTodo}
         />
       </form>
     </header>

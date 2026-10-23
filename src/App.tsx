@@ -20,7 +20,7 @@ export const App: React.FC = () => {
   );
 
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [isProcessedIds, setIsProcessedIds] = useState<number[]>([]);
+  const [processedIds, setProcessedIds] = useState<number[]>([]);
   const [title, setTitle] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -33,7 +33,7 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     inputRef.current?.focus();
-  }, [tempTodo]);
+  }, [tempTodo, todos]);
 
   function getVisibleTodos(): Todo[] {
     switch (status) {
@@ -49,7 +49,7 @@ export const App: React.FC = () => {
   const visibleTodos = getVisibleTodos();
 
   function handleTodoDelete(id: number) {
-    setIsProcessedIds(prev => [...prev, id]);
+    setProcessedIds(prev => [...prev, id]);
 
     deleteTodo(id)
       .then(() =>
@@ -57,8 +57,14 @@ export const App: React.FC = () => {
       )
       .catch(() => setErrorMessage(ErrorMessage.unableToDelete))
       .finally(() =>
-        setIsProcessedIds(prevIds => prevIds.filter(prevId => prevId !== id)),
+        setProcessedIds(prevIds => prevIds.filter(prevId => prevId !== id)),
       );
+  }
+
+  function handleDeleteAllCompletedTodos() {
+    const completedTodos = todos.filter(todo => todo.completed);
+
+    completedTodos.forEach(completedTodo => handleTodoDelete(completedTodo.id));
   }
 
   function handleFormSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -104,17 +110,22 @@ export const App: React.FC = () => {
           onTitleChange={setTitle}
           inputFocusRef={inputRef}
           onFormSubmit={handleFormSubmit}
-          tempTodo={tempTodo}
+          isTempTodo={tempTodo !== null}
         />
         {(todos.length > 0 || tempTodo !== null) && (
           <>
             <TodoList
               todos={visibleTodos}
               tempTodo={tempTodo}
-              isProcessedIds={isProcessedIds}
+              processedIds={processedIds}
               onDelete={handleTodoDelete}
             />
-            <Footer todos={todos} status={status} onStatusChange={setStatus} />
+            <Footer
+              todos={todos}
+              status={status}
+              onStatusChange={setStatus}
+              onDeleteAllCompletedTodos={handleDeleteAllCompletedTodos}
+            />
           </>
         )}
       </div>

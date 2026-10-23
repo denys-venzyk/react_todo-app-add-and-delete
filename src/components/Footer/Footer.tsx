@@ -7,6 +7,7 @@ type Props = {
   todos: Todo[];
   status: Status;
   onStatusChange: (status: Status) => void;
+  onDeleteAllCompletedTodos: () => void;
 };
 
 const FILTER_LINKS = [
@@ -15,7 +16,12 @@ const FILTER_LINKS = [
   { status: Status.Completed, title: 'Completed', href: '#/completed' },
 ];
 
-export const Footer: React.FC<Props> = ({ todos, status, onStatusChange }) => {
+export const Footer: React.FC<Props> = ({
+  todos,
+  status,
+  onStatusChange,
+  onDeleteAllCompletedTodos,
+}) => {
   const activeTodos = todos.filter(todo => !todo.completed);
 
   return (
@@ -45,6 +51,7 @@ export const Footer: React.FC<Props> = ({ todos, status, onStatusChange }) => {
         className="todoapp__clear-completed"
         data-cy="ClearCompletedButton"
         disabled={!todos.some(todo => todo.completed)}
+        onClick={onDeleteAllCompletedTodos}
       >
         Clear completed
       </button>

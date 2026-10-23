@@ -5,14 +5,14 @@ import { TodoItem } from '../TodoItem/TodoItem';
 type Props = {
   todos: Todo[];
   tempTodo: Todo | null;
-  isProcessedIds: number[];
+  processedIds: number[];
   onDelete: (id: number) => void;
 };
 
 export const TodoList: React.FC<Props> = ({
   todos,
   tempTodo,
-  isProcessedIds,
+  processedIds,
   onDelete,
 }) => {
   return (
@@ -21,7 +21,7 @@ export const TodoList: React.FC<Props> = ({
         <TodoItem
           todo={todo}
           key={todo.id}
-          isProcessed={isProcessedIds.includes(todo.id)}
+          isProcessed={processedIds.includes(todo.id)}
           onDelete={onDelete}
         />
       ))}
