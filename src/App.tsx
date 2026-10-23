@@ -3,7 +3,7 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useRef, useState } from 'react';
 import { UserWarning } from './UserWarning';
-import { deleteTodo, getTodos, USER_ID } from './api/todos';
+import { addTodo, deleteTodo, getTodos, USER_ID } from './api/todos';
 import { Todo } from './types/Todo';
 import { Status } from './types/Status';
 import { TodoList } from './components/TodoList/TodoList';
@@ -33,7 +33,7 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     inputRef.current?.focus();
-  }, []);
+  }, [tempTodo]);
 
   function getVisibleTodos(): Todo[] {
     switch (status) {
@@ -77,6 +77,16 @@ export const App: React.FC = () => {
       title: trimmedTitle,
       completed: false,
     });
+
+    addTodo({ title: trimmedTitle, userId: USER_ID, completed: false })
+      .then(newTodo => {
+        setTodos(currentTodos => [...currentTodos, newTodo]);
+        setTitle('');
+      })
+      .catch(() => setErrorMessage(ErrorMessage.unableToAdd))
+      .finally(() => {
+        setTempTodo(null);
+      });
   }
 
   if (!USER_ID) {
