@@ -5,38 +5,44 @@ import cn from 'classnames';
 type Props = {
   todos: Todo[];
   title: string;
-  onTitle: (title: string) => void;
+  onTitleChange: (title: string) => void;
   inputFocusRef: React.RefObject<HTMLInputElement>;
+  onFormSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
+  tempTodo: Todo | null;
 };
 
 export const Header: React.FC<Props> = ({
   todos,
   title,
-  onTitle,
+  onTitleChange,
   inputFocusRef,
+  onFormSubmit,
+  tempTodo,
 }) => {
   const areAllTodosCompleted = todos.every(todo => todo.completed);
 
   return (
     <header className="todoapp__header">
-      <button
-        type="button"
-        className={cn('todoapp__toggle-all', {
-          active: areAllTodosCompleted,
-          hidden: todos.length === 0,
-        })}
-        data-cy="ToggleAllButton"
-      />
+      {todos.length !== 0 && (
+        <button
+          type="button"
+          className={cn('todoapp__toggle-all', {
+            active: areAllTodosCompleted,
+          })}
+          data-cy="ToggleAllButton"
+        />
+      )}
 
-      <form>
+      <form onSubmit={onFormSubmit}>
         <input
           data-cy="NewTodoField"
           type="text"
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
           value={title}
-          onChange={event => onTitle(event.target.value)}
+          onChange={event => onTitleChange(event.target.value)}
           ref={inputFocusRef}
+          disabled={tempTodo !== null}
         />
       </form>
     </header>

@@ -18,7 +18,7 @@ export const App: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<ErrorMessage>(
     ErrorMessage.noError,
   );
-  // eslint-disable-next-line
+
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isProcessedIds, setIsProcessedIds] = useState<number[]>([]);
   const [title, setTitle] = useState('');
@@ -61,6 +61,24 @@ export const App: React.FC = () => {
       );
   }
 
+  function handleFormSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const trimmedTitle = title.trim();
+
+    if (!trimmedTitle) {
+      setErrorMessage(ErrorMessage.titleEmpty);
+
+      return;
+    }
+
+    setTempTodo({
+      id: 0,
+      userId: USER_ID,
+      title: trimmedTitle,
+      completed: false,
+    });
+  }
+
   if (!USER_ID) {
     return <UserWarning />;
   }
@@ -73,10 +91,12 @@ export const App: React.FC = () => {
         <Header
           todos={todos}
           title={title}
-          onTitle={setTitle}
+          onTitleChange={setTitle}
           inputFocusRef={inputRef}
+          onFormSubmit={handleFormSubmit}
+          tempTodo={tempTodo}
         />
-        {todos.length > 0 && (
+        {(todos.length > 0 || tempTodo !== null) && (
           <>
             <TodoList
               todos={visibleTodos}
